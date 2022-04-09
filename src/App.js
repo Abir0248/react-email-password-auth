@@ -1,7 +1,11 @@
 import logo from "./logo.svg";
 import "./App.css";
 
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import app from "./firebase.init";
 import { Button } from "react-bootstrap";
@@ -15,11 +19,16 @@ function App() {
   const [validated, setValidated] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [registered, setRegistered] = useState(false);
   const handleEmailBlur = (event) => {
     setEmail(event.target.value);
   };
   const handlePasswordBlur = (event) => {
     setPassword(event.target.value);
+  };
+
+  const handleRegisteredChange = (event) => {
+    setRegistered(event.target.checked);
   };
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -36,17 +45,33 @@ function App() {
     setValidated(true);
     setError("");
     console.log("form submitted", email, password);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((result) => {
-        // Signed in
-        const user = result.user;
-        console.log(user);
-        // ...
-      })
-      .catch((error) => {
-        console.error(error);
-        // ..
-      });
+    if (registered) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((result) => {
+          const user = result.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          console.error(error);
+          setError(error.message);
+          // ..
+        });
+    } else {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((result) => {
+          // Signed in
+          const user = result.user;
+          console.log(user);
+          // setEmail("");
+          // setPassword("");
+          setError("");
+        })
+        .catch((error) => {
+          console.error(error);
+          setError(error.message);
+          // ..
+        });
+    }
   };
   return (
     <div className="App">
@@ -70,7 +95,9 @@ function App() {
         <input type="submit" value="Log In" />
       </form> */}
       <div className="registration w-50 mx-auto mt-5">
-        <h1 className="text-primary">Please Register</h1>
+        <h1 className="text-primary">
+          Please {registered ? "Login" : "Register"}
+        </h1>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
@@ -100,10 +127,17 @@ function App() {
               Please provide a valid password.
             </Form.Control.Feedback>
           </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check
+              onChange={handleRegisteredChange}
+              type="checkbox"
+              label="Already Registered?"
+            />
+          </Form.Group>
           <p className="text-danger">{error} </p>
 
           <Button variant="primary" type="submit">
-            Submit
+            {registered ? "Login" : "Register"}
           </Button>
         </Form>
       </div>
