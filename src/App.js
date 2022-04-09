@@ -5,6 +5,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendEmailVerification,
 } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import app from "./firebase.init";
@@ -65,6 +66,7 @@ function App() {
           // setEmail("");
           // setPassword("");
           setError("");
+          verifyEmail();
         })
         .catch((error) => {
           console.error(error);
@@ -72,6 +74,13 @@ function App() {
           // ..
         });
     }
+    const verifyEmail = () => {
+      sendEmailVerification(auth.currentUser).then(() => {
+        // Email verification sent!
+        console.log(" Email verification sent!");
+        // ...
+      });
+    };
   };
   return (
     <div className="App">
