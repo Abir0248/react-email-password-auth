@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
+  updateProfile,
 } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import app from "./firebase.init";
@@ -17,11 +18,17 @@ import { useState } from "react";
 const auth = getAuth(app);
 
 function App() {
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [validated, setValidated] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [registered, setRegistered] = useState(false);
+
+  const handleNameBlur = (event) => {
+    setName(event.target.value);
+  };
+
   const handleEmailBlur = (event) => {
     setEmail(event.target.value);
   };
@@ -82,6 +89,7 @@ function App() {
           // setPassword("");
           setError("");
           verifyEmail();
+          setUserName();
         })
         .catch((error) => {
           console.error(error);
@@ -89,6 +97,22 @@ function App() {
           // ..
         });
     }
+
+    const setUserName = () => {
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      })
+        .then(() => {
+          // Profile updated!
+          console.log("Updating Name");
+          // ...
+        })
+        .catch((error) => {
+          setError(error.message);
+          // An error occurred
+          // ...
+        });
+    };
     const verifyEmail = () => {
       sendEmailVerification(auth.currentUser).then(() => {
         // Email verification sent!
@@ -123,6 +147,22 @@ function App() {
           Please {registered ? "Login" : "Register"}
         </h1>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          {!registered && (
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Your Name</Form.Label>
+              <Form.Control
+                onBlur={handleNameBlur}
+                type="text"
+                placeholder="Enter Your Name"
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please provide Your Name.
+              </Form.Control.Feedback>
+            </Form.Group>
+          )}
+
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
