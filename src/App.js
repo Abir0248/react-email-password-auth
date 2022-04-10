@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import app from "./firebase.init";
@@ -31,6 +32,20 @@ function App() {
   const handleRegisteredChange = (event) => {
     setRegistered(event.target.checked);
   };
+  const handleForgetPassword = () => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        // Password reset email sent!
+        console.log("Password reset email sent!");
+        // ..
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -144,7 +159,10 @@ function App() {
             />
           </Form.Group>
           <p className="text-danger">{error} </p>
-
+          <Button onClick={handleForgetPassword} variant="link">
+            Forget Password?
+          </Button>
+          <br />
           <Button variant="primary" type="submit">
             {registered ? "Login" : "Register"}
           </Button>
